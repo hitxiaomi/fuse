@@ -39,6 +39,7 @@
 #include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 
+#include <boost/serialization/export.hpp>
 #include <boost/type_index/stl_type_index.hpp>
 
 #include <ostream>
@@ -290,9 +291,9 @@ public:
    * from compiling if it didn't have a serialize() method.
    */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive(CEREAL_NVP(uuid_));
+    archive & uuid_;
   }
 
   /**
@@ -334,8 +335,8 @@ public:
    *
    * These could be added to the FUSE_VARIABLE macro, similar to the clone() method.
    */
-  virtual void serializeVariable(cereal::JSONOutputArchive& archive) const {}
-  virtual void deserializeVariable(cereal::JSONInputArchive& archive) {}
+  virtual void serializeVariable(boost::archive::text_oarchive& archive) const {}
+  virtual void deserializeVariable(boost::archive::text_iarchive& archive) {}
 
 private:
   fuse_core::UUID uuid_;  //!< The unique ID number for this variable
@@ -347,5 +348,7 @@ private:
 std::ostream& operator <<(std::ostream& stream, const Variable& variable);
 
 }  // namespace fuse_core
+
+BOOST_CLASS_EXPORT_KEY(fuse_core::Variable);
 
 #endif  // FUSE_CORE_VARIABLE_H

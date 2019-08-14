@@ -43,7 +43,7 @@ void serializeConstraint(const fuse_core::Constraint& constraint, fuse_msgs::Ser
 {
   std::stringstream stream;
   {
-    cereal::JSONOutputArchive archive(stream);
+    boost::archive::text_oarchive archive(stream);
     constraint.serializeConstraint(archive);
   }
   msg.plugin_name = constraint.type();
@@ -71,8 +71,7 @@ fuse_core::Constraint::SharedPtr ConstraintDeserializer::deserialize(const fuse_
   // Deserialize the message into the Variable. This will throw if something goes wrong in the deserialization.
   std::stringstream stream(msg.data);
   {
-    cereal::JSONInputArchive archive(stream);
-    // cereal::XMLInputArchive archive(stream);
+    boost::archive::text_iarchive archive(stream);
     constraint->deserializeConstraint(archive);
   }
   // Return the populated variable. UniquePtrs are automatically promoted to SharedPtrs.

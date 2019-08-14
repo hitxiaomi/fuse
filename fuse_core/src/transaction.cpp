@@ -39,6 +39,7 @@
 #include <ros/time.h>
 
 #include <boost/iterator/transform_iterator.hpp>
+#include <boost/serialization/export.hpp>
 
 #include <algorithm>
 #include <ostream>
@@ -243,3 +244,5 @@ std::ostream& operator <<(std::ostream& stream, const Transaction& transaction)
 }
 
 }  // namespace fuse_core
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_core::Transaction);

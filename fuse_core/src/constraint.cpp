@@ -35,6 +35,8 @@
 
 #include <fuse_core/uuid.h>
 
+#include <boost/serialization/export.hpp>
+
 #include <initializer_list>
 #include <ostream>
 
@@ -55,3 +57,5 @@ std::ostream& operator <<(std::ostream& stream, const Constraint& constraint)
 }
 
 }  // namespace fuse_core
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_core::Constraint);

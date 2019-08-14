@@ -49,7 +49,8 @@ namespace fuse_test
 {
 
 DummySensor::DummySensor() :
-  fuse_core::AsyncSensorModel(1)
+  fuse_core::AsyncSensorModel(1),
+  count_(0)
 {
 }
 
@@ -74,8 +75,8 @@ void DummySensor::timerCallback(const ros::TimerEvent& /* event */)
   auto stamp = ros::Time::now();
   auto quest = std::string("Find the answer to life, the universe, and everything");
   auto variable = fuse_variables::DummyVariable::make_shared(stamp, quest);
-  variable->a() = 6;
-  variable->b() = 9;
+  variable->a() = static_cast<double>(count_) + 0.1;
+  variable->b() = static_cast<double>(count_) + 0.2;
 
   // Create a dummy constraint
   auto mean = fuse_core::Vector2d();

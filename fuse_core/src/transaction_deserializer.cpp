@@ -43,8 +43,8 @@ void serializeTransaction(const fuse_core::Transaction& transaction, fuse_msgs::
 {
   std::stringstream stream;
   {
-    cereal::JSONOutputArchive archive(stream);
-    archive(transaction);
+    boost::archive::text_oarchive archive(stream);
+    archive << transaction;
   }
   msg.data = stream.str();
 }
@@ -81,8 +81,8 @@ fuse_core::Transaction TransactionDeserializer::deserialize(const fuse_msgs::Ser
   // Deserialize the message into the Variable. This will throw if something goes wrong in the deserialization.
   std::stringstream stream(msg.data);
   {
-    cereal::JSONInputArchive archive(stream);
-    archive(transaction);
+    boost::archive::text_iarchive archive(stream);
+    archive >> transaction;
   }
   // Return the populated variable. UniquePtrs are automatically promoted to SharedPtrs.
   return transaction;

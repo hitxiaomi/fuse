@@ -41,6 +41,9 @@
 #include <fuse_variables/orientation_2d_stamped.h>
 #include <fuse_variables/position_2d_stamped.h>
 
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+
 #include <Eigen/Dense>
 
 #include <ostream>
@@ -62,6 +65,11 @@ class RelativePose2DStampedConstraint : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS(RelativePose2DStampedConstraint);
+
+  /**
+   * @brief Default constructor
+   */
+  RelativePose2DStampedConstraint() = default;
 
   /**
    * @brief Constructor
@@ -143,11 +151,34 @@ public:
    */
   ceres::CostFunction* costFunction() const override;
 
+  /**
+   * @brief Serialize the Dummy Variable members
+   */
+  template<class Archive>
+  void serialize(Archive& archive, const unsigned int version)
+  {
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & delta_;
+    archive & sqrt_information_;
+  }
+
+  void serializeConstraint(boost::archive::text_oarchive& archive) const override
+  {
+    archive << *this;
+  }
+
+  void deserializeConstraint(boost::archive::text_iarchive& archive) override
+  {
+    archive >> *this;
+  }
+
 protected:
   fuse_core::Vector3d delta_;  //!< The measured pose change (dx, dy, dyaw)
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix (derived from the covariance matrix)
 };
 
 }  // namespace fuse_constraints
+
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::RelativePose2DStampedConstraint);
 
 #endif  // FUSE_CONSTRAINTS_RELATIVE_POSE_2D_STAMPED_CONSTRAINT_H

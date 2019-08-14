@@ -51,7 +51,7 @@
 
 #include <pluginlib/class_loader.h>
 
-#include <cereal/archives/json.hpp>
+// #include <cereal/archives/json.hpp>
 #include <gtest/gtest.h>
 
 // NOLINTNEXTLINE(build/namespaces): using operator""s issues a warning.
@@ -71,8 +71,8 @@ TEST(Serialization, VariableInstance)
   // There are several different serialization formats. Using JSON here so the results are somewhat readable.
   std::stringstream stream;
   {
-    cereal::JSONOutputArchive archive(stream);
-    archive(CEREAL_NVP(variable));
+    boost::archive::text_oarchive archive(stream);
+    archive << variable;
   }
   std::cout << stream.str() << std::endl;
 }
@@ -89,8 +89,8 @@ TEST(Serialization, DerivedPointer)
   // Serialize the variable
   std::stringstream stream;
   {
-    cereal::JSONOutputArchive archive(stream);
-    archive(CEREAL_NVP(variable));
+    boost::archive::text_oarchive archive(stream);
+    archive << variable;
   }
   std::cout << stream.str() << std::endl;
 }
@@ -107,8 +107,8 @@ TEST(Serialization, BaseClassPointer)
   // Serialize the variable
   std::stringstream stream;
   {
-    cereal::JSONOutputArchive archive(stream);
-    archive(CEREAL_NVP(variable));
+    boost::archive::text_oarchive archive(stream);
+    archive << variable;
   }
   std::cout << stream.str() << std::endl;
 }
@@ -124,8 +124,8 @@ TEST(Serialization, Plugin)
   // Serialize the variable
   std::stringstream stream;
   {
-    cereal::JSONOutputArchive archive(stream);
-    archive(CEREAL_NVP(variable));
+    boost::archive::text_oarchive archive(stream);
+    archive << variable;
   }
   std::cout << stream.str() << std::endl;
 }
@@ -167,8 +167,8 @@ TEST(Serialization, ConstraintInstance)
   // There are several different serialization formats. Using JSON here so the results are somewhat readable.
   std::stringstream stream;
   {
-    cereal::JSONOutputArchive archive(stream);
-    archive(CEREAL_NVP(constraint));
+    boost::archive::text_oarchive archive(stream);
+    archive << constraint;
   }
   std::cout << stream.str() << std::endl;
 }
@@ -205,8 +205,8 @@ TEST(Serialization, Transaction)
   // Serialize
   std::stringstream stream;
   {
-    cereal::JSONOutputArchive archive(stream);
-    archive(CEREAL_NVP(transaction));
+    boost::archive::text_oarchive archive(stream);
+    archive << transaction;
   }
   std::cout << stream.str() << std::endl;
 }
@@ -235,8 +235,8 @@ TEST(Serialization, Graph)
   // Serialize
   std::stringstream stream;
   {
-    cereal::JSONOutputArchive archive(stream);
-    archive(CEREAL_NVP(graph));
+    boost::archive::text_oarchive archive(stream);
+    archive << graph;
   }
   std::cout << stream.str() << std::endl;
 }

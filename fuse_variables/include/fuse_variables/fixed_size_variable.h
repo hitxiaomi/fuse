@@ -35,11 +35,16 @@
 #define FUSE_VARIABLES_FIXED_SIZE_VARIABLE_H
 
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/variable.h>
 
-#include <cereal/types/array.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
+#include <boost/serialization/array.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+
+// #include <cereal/types/array.hpp>
+// #include <cereal/types/base_class.hpp>
+// #include <cereal/types/polymorphic.hpp>
 
 #include <array>
 
@@ -117,20 +122,20 @@ public:
    * @brief Serialize the members
    */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive(cereal::make_nvp("base", cereal::base_class<fuse_core::Variable>(this)),
-            CEREAL_NVP(data_));
+    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive & data_;
   }
 
-  void serializeVariable(cereal::JSONOutputArchive& archive) const override
+  void serializeVariable(boost::archive::text_oarchive& archive) const override
   {
-    archive(cereal::make_nvp("variable", *this));
+    archive << *this;
   }
 
-  void deserializeVariable(cereal::JSONInputArchive& archive) override
+  void deserializeVariable(boost::archive::text_iarchive& archive) override
   {
-    archive(cereal::make_nvp("variable", *this));
+    archive >> *this;
   }
 
 protected:

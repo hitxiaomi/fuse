@@ -33,11 +33,14 @@
  */
 #include <fuse_variables/dummy_variable.h>
 
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/fixed_size_variable.h>
 #include <fuse_variables/stamped.h>
 #include <pluginlib/class_list_macros.hpp>
 #include <ros/time.h>
+
+#include <boost/serialization/export.hpp>
 
 #include <ostream>
 
@@ -69,3 +72,5 @@ void DummyVariable::print(std::ostream& stream) const
 // Register this variable with ROS as a plugin. This allows the pluginlib class loader to be used to deserialize
 // variables in a generic manner in other classes.
 PLUGINLIB_EXPORT_CLASS(fuse_variables::DummyVariable, fuse_core::Variable);
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_variables::DummyVariable);

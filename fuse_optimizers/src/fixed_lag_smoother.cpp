@@ -123,14 +123,23 @@ void FixedLagSmoother::preprocessMarginalization(const fuse_core::Transaction& n
 
 std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize()
 {
+  ROS_INFO_STREAM("FixedLagSmoother::computeVariablesToMarginalize()  begin");
   auto current_stamp = timestamp_tracking_.currentStamp();
+  ROS_INFO_STREAM("  current stamp: " << current_stamp);
   auto lag_stamp = ros::Time(0, 0);
   if (current_stamp > ros::Time(0, 0) + params_.lag_duration)
   {
     lag_stamp = current_stamp - params_.lag_duration;
   }
+  ROS_INFO_STREAM("  lag stamp: " << lag_stamp);
   auto old_variables = std::vector<fuse_core::UUID>();
   timestamp_tracking_.query(lag_stamp, std::back_inserter(old_variables));
+  ROS_INFO_STREAM("  old variables:");
+  for (const auto& var : old_variables)
+  {
+    ROS_INFO_STREAM("   - " << var);
+  }
+  ROS_INFO_STREAM("FixedLagSmoother::computeVariablesToMarginalize()  end");
   return old_variables;
 }
 
@@ -295,6 +304,10 @@ void FixedLagSmoother::transactionCallback(
   const std::string& sensor_name,
   fuse_core::Transaction::SharedPtr transaction)
 {
+  ROS_INFO_STREAM("Received transaction with stamp: " << transaction->stamp());
+  ROS_INFO_STREAM("  started: " << started_);
+  ROS_INFO_STREAM("  start_time: " << start_time_);
+
   // If this transaction occurs before the start time, just ignore it
   auto transaction_time = transaction->stamp();
   if (started_ && transaction_time < start_time_)

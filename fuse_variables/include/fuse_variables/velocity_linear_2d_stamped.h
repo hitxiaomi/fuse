@@ -40,8 +40,11 @@
 #include <fuse_variables/stamped.h>
 #include <ros/time.h>
 
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+
+// #include <cereal/types/base_class.hpp>
+// #include <cereal/types/polymorphic.hpp>
 
 #include <ostream>
 
@@ -114,26 +117,27 @@ public:
    * @brief Serialize the members
    */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive(cereal::make_nvp("base", cereal::base_class<fuse_variables::FixedSizeVariable<2>>(this)),
-            cereal::make_nvp("stamp", cereal::base_class<fuse_variables::Stamped>(this)));
+    archive & boost::serialization::base_object<fuse_variables::FixedSizeVariable<2>>(*this);
+    archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
   }
 
-  void serializeVariable(cereal::JSONOutputArchive& archive) const override
+  void serializeVariable(boost::archive::text_oarchive& archive) const override
   {
-    archive(cereal::make_nvp("variable", *this));
+    archive << *this;
   }
 
-  void deserializeVariable(cereal::JSONInputArchive& archive) override
+  void deserializeVariable(boost::archive::text_iarchive& archive) override
   {
-    archive(cereal::make_nvp("variable", *this));
+    archive >> *this;
   }
 };
 
 }  // namespace fuse_variables
 
 // Register the derived fuse VelocityLinear2DStamped variable with Cereal.
-CEREAL_REGISTER_TYPE(fuse_variables::VelocityLinear2DStamped);
+// CEREAL_REGISTER_TYPE(fuse_variables::VelocityLinear2DStamped);
+BOOST_CLASS_EXPORT_KEY(fuse_variables::VelocityLinear2DStamped);
 
 #endif  // FUSE_VARIABLES_VELOCITY_LINEAR_2D_STAMPED_H

@@ -38,74 +38,99 @@
 
 #include <ros/time.h>
 
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/archives/json.hpp>
-#include <cereal/archives/portable_binary.hpp>
-#include <cereal/archives/xml.hpp>
+#include <boost/serialization/serialization.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+//#include <boost/archive/xml_iarchive.hpp>
+//#include <boost/archive/xml_oarchive.hpp>
+
+#include <boost/serialization/array.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/uuid/uuid_serialize.hpp>
+
+// #include <cereal/cereal.hpp>
+// #include <cereal/archives/binary.hpp>
+// #include <cereal/archives/json.hpp>
+// #include <cereal/archives/portable_binary.hpp>
+// #include <cereal/archives/xml.hpp>
 
 #include <Eigen/Core>
 
-namespace cereal
+namespace boost
 {
-/**
- * @brief Serialize a UUID object
- */
-template<class Archive>
-void serialize(Archive& archive, fuse_core::UUID& uuid)
+namespace serialization
 {
-  archive(cereal::make_nvp("data", uuid.data));
-}
 
 /**
- * @brief Serialize a ros::Time variable using Cereal
+ * @brief Serialize a ros::Time variable using Boost Serialization
  */
 template<class Archive>
-void serialize(Archive& archive, ros::Time& stamp)
+void serialize(Archive& archive, ros::Time& stamp, const unsigned int version)
 {
-  archive(cereal::make_nvp("sec", stamp.sec),
-          cereal::make_nvp("nsec", stamp.nsec));
+  archive & stamp.sec;
+  archive & stamp.nsec;
 }
 
-// Stole this from somewhere. Here maybe?
-// https://stackoverflow.com/questions/22884216/serializing-eigenmatrix-using-cereal-library
-// Or here?
-// https://github.com/luca-penasa/spc/blob/master/spc/tests/cereal_serialize.cpp
-template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols> inline
-void save(Archive& archive, Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> const& m)
+/**
+ * @brief Serialize an Eigen Matrix using Boost Serialization
+ */
+template<class Archive,
+         class S,
+         int Rows_,
+         int Cols_,
+         int Ops_,
+         int MaxRows_,
+         int MaxCols_>
+inline void save(
+  Archive & ar,
+  const Eigen::Matrix<S, Rows_, Cols_, Ops_, MaxRows_, MaxCols_>& g,
+  const unsigned int version)
 {
-  int rows = m.rows();
-  int cols = m.cols();
-  archive(CEREAL_NVP(rows));
-  archive(CEREAL_NVP(cols));
+  int rows = g.rows();
+  int cols = g.cols();
 
-  for (int i = 0; i < rows; i++)
-  {
-    for (int j = 0; j < cols; j++)
-    {
-      archive(m(i, j));
-    }
-  }
+  ar & rows;
+  ar & cols;
+  ar & boost::serialization::make_array(g.data(), rows * cols);
 }
 
-template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols> inline
-void load(Archive& archive, Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& m)
+template<class Archive,
+         class S,
+         int Rows_,
+         int Cols_,
+         int Ops_,
+         int MaxRows_,
+         int MaxCols_>
+inline void load(
+  Archive & ar,
+  Eigen::Matrix<S, Rows_, Cols_, Ops_, MaxRows_, MaxCols_>& g,
+  const unsigned int version)
 {
-  int rows;
-  int cols;
-  archive(rows);
-  archive(cols);
-
-  m.resize(rows, cols);
-  for (int i = 0; i < rows; i++)
-  {
-    for (int j = 0; j < cols; j++)
-    {
-      archive(m(i, j));
-    }
-  }
+  int rows, cols;
+  ar & rows;
+  ar & cols;
+  g.resize(rows, cols);
+  ar & boost::serialization::make_array(g.data(), rows * cols);
 }
 
-}  // namespace cereal
+template<class Archive,
+         class S,
+         int Rows_,
+         int Cols_,
+         int Ops_,
+         int MaxRows_,
+         int MaxCols_>
+inline void serialize(
+  Archive & ar,
+  Eigen::Matrix<S, Rows_, Cols_, Ops_, MaxRows_, MaxCols_>& g,
+  const unsigned int version)
+{
+  split_free(ar, g, version);
+}
+
+}  // namespace serialization
+}  // namespace boost
 
 #endif  // FUSE_CORE_SERIALIZATION_H

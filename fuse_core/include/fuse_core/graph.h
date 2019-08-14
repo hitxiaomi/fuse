@@ -43,6 +43,7 @@
 
 #include <boost/core/demangle.hpp>
 #include <boost/range/any_range.hpp>
+#include <boost/serialization/export.hpp>
 #include <ceres/covariance.h>
 #include <ceres/solver.h>
 
@@ -286,13 +287,12 @@ public:
    * @brief Serialize the graph
    */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive();
   }
 
-  virtual void serializeGraph(cereal::JSONOutputArchive& archive) const {}
-  virtual void deserializeGraph(cereal::JSONInputArchive& archive) {}
+  virtual void serializeGraph(boost::archive::text_oarchive& archive) const {}
+  virtual void deserializeGraph(boost::archive::text_iarchive& archive) {}
 };
 
 /**
@@ -301,5 +301,7 @@ public:
 std::ostream& operator <<(std::ostream& stream, const Graph& graph);
 
 }  // namespace fuse_core
+
+BOOST_CLASS_EXPORT_KEY(fuse_core::Graph);
 
 #endif  // FUSE_CORE_GRAPH_H

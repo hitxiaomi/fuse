@@ -39,7 +39,10 @@
 #include <ros/node_handle.h>
 #include <ros/time.h>
 
-#include <cereal/types/polymorphic.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+
+// #include <cereal/types/polymorphic.hpp>
 
 
 namespace fuse_variables
@@ -86,11 +89,14 @@ public:
    */
   const fuse_core::UUID& deviceId() const { return device_id_; }
 
+  /**
+   * @brief Serialize the members
+   */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive(CEREAL_NVP(device_id_),
-            CEREAL_NVP(stamp_));
+    archive & device_id_;
+    archive & stamp_;
   }
 
 private:

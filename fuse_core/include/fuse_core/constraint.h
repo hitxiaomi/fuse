@@ -39,11 +39,13 @@
 #include <fuse_core/uuid.h>
 
 #include <boost/core/demangle.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/type_index/stl_type_index.hpp>
 #include <ceres/cost_function.h>
 #include <ceres/loss_function.h>
 
-#include <cereal/types/vector.hpp>
+// #include <cereal/types/vector.hpp>
 
 #include <initializer_list>
 #include <ostream>
@@ -275,10 +277,10 @@ public:
    * from compiling if it didn't have a serialize() method.
    */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive(CEREAL_NVP(uuid_),
-            CEREAL_NVP(variables_));
+    archive & uuid_;
+    archive & variables_;
   }
 
   /**
@@ -322,8 +324,8 @@ public:
    *
    * These could be added to the FUSE_VARIABLE macro, similar to the clone() method.
    */
-  virtual void serializeConstraint(cereal::JSONOutputArchive& archive) const {}
-  virtual void deserializeConstraint(cereal::JSONInputArchive& archive) {}
+  virtual void serializeConstraint(boost::archive::text_oarchive& archive) const {}
+  virtual void deserializeConstraint(boost::archive::text_iarchive& archive) {}
 
 protected:
   UUID uuid_;  //!< The unique ID associated with this constraint
@@ -344,5 +346,7 @@ Constraint::Constraint(VariableUuidIterator first, VariableUuidIterator last) :
 }
 
 }  // namespace fuse_core
+
+BOOST_CLASS_EXPORT_KEY(fuse_core::Constraint);
 
 #endif  // FUSE_CORE_CONSTRAINT_H

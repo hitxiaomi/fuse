@@ -36,6 +36,7 @@
 
 #include <pluginlib/class_list_macros.hpp>
 
+#include <boost/serialization/export.hpp>
 #include <ceres/normal_prior.h>
 #include <Eigen/Dense>
 
@@ -47,8 +48,8 @@ namespace fuse_constraints
 
 DummyConstraint::DummyConstraint(
   const fuse_variables::DummyVariable& variable,
-  const fuse_core::Vector2d& mean,
-  const fuse_core::Matrix2d& covariance) :
+  const fuse_core::VectorXd& mean,
+  const fuse_core::MatrixXd& covariance) :
     fuse_core::Constraint{variable.uuid()},
     mean_(mean),
     sqrt_information_(covariance.inverse().llt().matrixU())
@@ -58,7 +59,7 @@ DummyConstraint::DummyConstraint(
   assert(covariance.cols() == static_cast<int>(variable.size()));
 }
 
-fuse_core::Matrix2d DummyConstraint::covariance() const
+fuse_core::MatrixXd DummyConstraint::covariance() const
 {
   // We want to compute:
   // cov = (sqrt_info' * sqrt_info)^-1
@@ -67,8 +68,8 @@ fuse_core::Matrix2d DummyConstraint::covariance() const
   // But sqrt_info _may_ not be square. So we need to compute the pseudoinverse instead.
   // Eigen doesn't have a pseudoinverse function (for probably very legitimate reasons).
   // So we set the right hand side to identity, then solve using one of Eigen's many decompositions.
-  auto I = fuse_core::Matrix2d::Identity();
-  fuse_core::Matrix2d pinv = sqrt_information_.colPivHouseholderQr().solve(I);
+  auto I = fuse_core::MatrixXd::Identity(sqrt_information_.rows(), sqrt_information_.cols());
+  fuse_core::MatrixXd pinv = sqrt_information_.colPivHouseholderQr().solve(I);
   return pinv * pinv.transpose();
 }
 
@@ -93,3 +94,5 @@ ceres::CostFunction* DummyConstraint::costFunction() const
 // Register this variable with ROS as a plugin. This allows the pluginlib class loader to be used to deserialize
 // variables in a generic manner in other classes.
 PLUGINLIB_EXPORT_CLASS(fuse_constraints::DummyConstraint, fuse_core::Constraint);
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::DummyConstraint);

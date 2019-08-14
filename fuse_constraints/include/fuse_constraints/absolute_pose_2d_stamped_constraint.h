@@ -43,8 +43,11 @@
 
 #include <Eigen/Dense>
 
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+
+// #include <cereal/types/base_class.hpp>
+// #include <cereal/types/polymorphic.hpp>
 
 #include <ostream>
 #include <vector>
@@ -150,25 +153,26 @@ public:
   ceres::CostFunction* costFunction() const override;
 
   /**
-   * @brief Serialize the members
+   * @brief Serialize the Dummy Variable members
    */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive(cereal::make_nvp("base", cereal::base_class<fuse_core::Constraint>(this)),
-            CEREAL_NVP(mean_),
-            CEREAL_NVP(sqrt_information_));
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & mean_;
+    archive & sqrt_information_;
   }
 
-  void serializeConstraint(cereal::JSONOutputArchive& archive) const override
+  void serializeConstraint(boost::archive::text_oarchive& archive) const override
   {
-    archive(cereal::make_nvp("constraint", *this));
+    archive << *this;
   }
 
-  void deserializeConstraint(cereal::JSONInputArchive& archive) override
+  void deserializeConstraint(boost::archive::text_iarchive& archive) override
   {
-    archive(cereal::make_nvp("constraint", *this));
+    archive >> *this;
   }
+
 protected:
   fuse_core::Vector3d mean_;  //!< The measured/prior mean vector for this variable
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
@@ -177,6 +181,7 @@ protected:
 }  // namespace fuse_constraints
 
 // Register the derived fuse AbsolutePose2DStampedConstraint with Cereal.
-CEREAL_REGISTER_TYPE(fuse_constraints::AbsolutePose2DStampedConstraint);
+// CEREAL_REGISTER_TYPE(fuse_constraints::AbsolutePose2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePose2DStampedConstraint);
 
 #endif  // FUSE_CONSTRAINTS_ABSOLUTE_POSE_2D_STAMPED_CONSTRAINT_H

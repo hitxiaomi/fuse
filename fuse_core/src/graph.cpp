@@ -37,6 +37,7 @@
 #include <fuse_core/uuid.h>
 
 #include <boost/iterator/transform_iterator.hpp>
+#include <boost/serialization/export.hpp>
 
 #include <functional>
 
@@ -95,3 +96,5 @@ void Graph::update(const Transaction& transaction)
 }
 
 }  // namespace fuse_core
+
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_core::Graph);

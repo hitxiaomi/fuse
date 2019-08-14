@@ -43,7 +43,7 @@ void serializeVariable(const fuse_core::Variable& variable, fuse_msgs::Serialize
 {
   std::stringstream stream;
   {
-    cereal::JSONOutputArchive archive(stream);
+    boost::archive::text_oarchive archive(stream);
     variable.serializeVariable(archive);
   }
   msg.plugin_name = variable.type();
@@ -70,8 +70,7 @@ fuse_core::Variable::SharedPtr VariableDeserializer::deserialize(const fuse_msgs
   // Deserialize the message into the Variable. This will throw if something goes wrong in the deserialization.
   std::stringstream stream(msg.data);
   {
-    cereal::JSONInputArchive archive(stream);
-    // cereal::XMLInputArchive archive(stream);
+    boost::archive::text_iarchive archive(stream);
     variable->deserializeVariable(archive);
   }
   // Return the populated variable. UniquePtrs are automatically promoted to SharedPtrs.

@@ -81,6 +81,7 @@ protected:
   void onStop() override;
 
   ros::Timer timer_;
+  size_t count_;
 };
 
 }  // namespace fuse_test

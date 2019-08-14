@@ -13,7 +13,7 @@ motion_models: {}
 sensor_models:
   - name: dummy_sensor
     type: fuse_test::DummySensor
-    motion_models: []
+    motion_models: []   
 
 publishers:
   - name: serialized_publisher

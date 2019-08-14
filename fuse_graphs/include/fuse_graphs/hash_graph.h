@@ -41,11 +41,16 @@
 #include <fuse_core/uuid.h>
 #include <fuse_core/variable.h>
 
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/types/unordered_map.hpp>
-#include <cereal/types/unordered_set.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/unordered_map.hpp>
+#include <boost/serialization/unordered_set.hpp>
+//#include <cereal/types/base_class.hpp>
+//#include <cereal/types/memory.hpp>
+//#include <cereal/types/polymorphic.hpp>
+//#include <cereal/types/unordered_map.hpp>
+//#include <cereal/types/unordered_set.hpp>
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
@@ -318,23 +323,23 @@ public:
    * @brief Serialize the graph
    */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive(CEREAL_NVP(constraints_),
-            CEREAL_NVP(constraints_by_variable_uuid_),
-            // CEREAL_NVP(problem_options_),  // I'm lazy at the moment and didn't create a serialization function
-            CEREAL_NVP(variables_),
-            CEREAL_NVP(variables_on_hold_));
+    archive & constraints_;
+    archive & constraints_by_variable_uuid_;
+    // archive & problem_options_;  // I'm lazy at the moment and didn't create a serialization function
+    archive & variables_;
+    archive & variables_on_hold_;
   }
 
-  void serializeGraph(cereal::JSONOutputArchive& archive) const override
+  void serializeGraph(boost::archive::text_oarchive& archive) const override
   {
-    archive(*this);
+    archive << *this;
   }
 
-  void deserializeGraph(cereal::JSONInputArchive& archive) override
+  void deserializeGraph(boost::archive::text_iarchive& archive) override
   {
-    archive(*this);
+    archive >> *this;
   }
 
 protected:
@@ -346,7 +351,7 @@ protected:
 
   Constraints constraints_;  //!< The set of all constraints
   CrossReference constraints_by_variable_uuid_;  //!< Index all of the constraints by variable uuids
-//  ceres::Problem::Options problem_options_;  //!< User-defined options to be applied to all constructed ceres::Problems
+  ceres::Problem::Options problem_options_;  //!< User-defined options to be applied to all constructed ceres::Problems
   Variables variables_;  //!< The set of all variables
   VariableSet variables_on_hold_;  //!< The set of variables that should be held constant
 
@@ -364,6 +369,7 @@ protected:
 }  // namespace fuse_graphs
 
 // Register the derived fuse Variable with Cereal.
-CEREAL_REGISTER_TYPE(fuse_graphs::HashGraph);
+// CEREAL_REGISTER_TYPE(fuse_graphs::HashGraph);
+BOOST_CLASS_EXPORT_KEY(fuse_graphs::HashGraph);
 
 #endif  // FUSE_GRAPHS_HASH_GRAPH_H

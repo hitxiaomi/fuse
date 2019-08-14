@@ -43,7 +43,7 @@ void serializeGraph(const fuse_core::Graph& graph, fuse_msgs::SerializedGraph& m
 {
   std::stringstream stream;
   {
-    cereal::JSONOutputArchive archive(stream);
+    boost::archive::text_oarchive archive(stream);
     graph.serializeGraph(archive);
   }
   msg.plugin_name = graph.type();
@@ -83,7 +83,7 @@ fuse_core::Graph::SharedPtr GraphDeserializer::deserialize(const fuse_msgs::Seri
   // Deserialize the message into the Variable. This will throw if something goes wrong in the deserialization.
   std::stringstream stream(msg.data);
   {
-    cereal::JSONInputArchive archive(stream);
+    boost::archive::text_iarchive archive(stream);
     graph->deserializeGraph(archive);
   }
   // Return the populated variable. UniquePtrs are automatically promoted to SharedPtrs.

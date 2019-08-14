@@ -10,7 +10,7 @@ set(build_depends
 find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
 )
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
 
@@ -61,11 +61,12 @@ target_include_directories(${PROJECT_NAME}
     ${EIGEN3_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
+  ${Boost_LIBRARIES}
   ${catkin_LIBRARIES}
   ${CERES_LIBRARIES}
 )
 
-## fuse_echo executable
+# fuse_echo executable
 add_executable(fuse_echo
   src/fuse_echo.cpp
 )

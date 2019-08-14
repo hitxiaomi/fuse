@@ -37,6 +37,7 @@
 #include <fuse_core/constraint.h>
 #include <fuse_core/eigen.h>
 #include <fuse_core/macros.h>
+#include <fuse_core/serialization.h>
 #include <fuse_core/uuid.h>
 #include <fuse_variables/acceleration_angular_2d_stamped.h>
 #include <fuse_variables/acceleration_linear_2d_stamped.h>
@@ -48,8 +49,11 @@
 
 #include <ceres/cost_function.h>
 
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+
+// #include <cereal/types/base_class.hpp>
+// #include <cereal/types/polymorphic.hpp>
 
 #include <ostream>
 #include <vector>
@@ -67,7 +71,7 @@ namespace fuse_constraints
  * This constraint holds the measured variable value and the measurement uncertainty/covariance.
  */
 template<class Variable>
-class AbsoluteConstraint final : public fuse_core::Constraint
+class AbsoluteConstraint : public fuse_core::Constraint
 {
 public:
   FUSE_CONSTRAINT_DEFINITIONS(AbsoluteConstraint<Variable>);
@@ -155,24 +159,24 @@ public:
   ceres::CostFunction* costFunction() const override;
 
   /**
-   * @brief Serialize the members
+   * @brief Serialize the Dummy Variable members
    */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive(cereal::make_nvp("base", cereal::base_class<fuse_core::Constraint>(this)),
-            CEREAL_NVP(mean_),
-            CEREAL_NVP(sqrt_information_));
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & mean_;
+    archive & sqrt_information_;
   }
 
-  void serializeConstraint(cereal::JSONOutputArchive& archive) const override
+  void serializeConstraint(boost::archive::text_oarchive& archive) const override
   {
-    archive(cereal::make_nvp("constraint", *this));
+    archive << *this;
   }
 
-  void deserializeConstraint(cereal::JSONInputArchive& archive) override
+  void deserializeConstraint(boost::archive::text_iarchive& archive) override
   {
-    archive(cereal::make_nvp("constraint", *this));
+    archive >> *this;
   }
 
 protected:
@@ -193,13 +197,21 @@ using AbsoluteVelocityLinear2DStampedConstraint = AbsoluteConstraint<fuse_variab
 // Include the template implementation
 #include <fuse_constraints/absolute_constraint_impl.h>
 
-// Register the different variations of the derived absolute constraint with Cereal.
-CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint);
-CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint);
-CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteOrientation2DStampedConstraint);
-CEREAL_REGISTER_TYPE(fuse_constraints::AbsolutePosition2DStampedConstraint);
-CEREAL_REGISTER_TYPE(fuse_constraints::AbsolutePosition3DStampedConstraint);
-CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint);
-CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint);
+//// Register the different variations of the derived absolute constraint with Cereal.
+// CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint);
+// CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint);
+// CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteOrientation2DStampedConstraint);
+// CEREAL_REGISTER_TYPE(fuse_constraints::AbsolutePosition2DStampedConstraint);
+// CEREAL_REGISTER_TYPE(fuse_constraints::AbsolutePosition3DStampedConstraint);
+// CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint);
+// CEREAL_REGISTER_TYPE(fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint);
+
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteOrientation2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePosition2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsolutePosition3DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint);
 
 #endif  // FUSE_CONSTRAINTS_ABSOLUTE_CONSTRAINT_H

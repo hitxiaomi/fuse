@@ -42,10 +42,14 @@
 #include <ros/time.h>
 
 #include <boost/range/any_range.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/types/set.hpp>
-#include <cereal/types/vector.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/set.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+//#include <cereal/types/memory.hpp>
+//#include <cereal/types/polymorphic.hpp>
+//#include <cereal/types/set.hpp>
+//#include <cereal/types/vector.hpp>
 
 #include <ostream>
 #include <set>
@@ -237,14 +241,14 @@ public:
    * from compiling if it didn't have a serialize() method.
    */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive(CEREAL_NVP(stamp_),
-            CEREAL_NVP(added_constraints_),
-            CEREAL_NVP(added_variables_),
-            CEREAL_NVP(involved_stamps_),
-            CEREAL_NVP(removed_constraints_),
-            CEREAL_NVP(removed_variables_));
+    archive & stamp_;
+    archive & added_constraints_;
+    archive & added_variables_;
+    archive & involved_stamps_;
+    archive & removed_constraints_;
+    archive & removed_variables_;
   }
 
 protected:
@@ -262,5 +266,7 @@ protected:
 std::ostream& operator <<(std::ostream& stream, const Transaction& transaction);
 
 }  // namespace fuse_core
+
+BOOST_CLASS_EXPORT_KEY(fuse_core::Transaction);
 
 #endif  // FUSE_CORE_TRANSACTION_H

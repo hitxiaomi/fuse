@@ -41,8 +41,11 @@
 #include <fuse_core/uuid.h>
 #include <fuse_variables/dummy_variable.h>
 
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+
+//#include <cereal/types/base_class.hpp>
+//#include <cereal/types/polymorphic.hpp>
 #include <ceres/cost_function.h>
 
 #include <ostream>
@@ -79,8 +82,8 @@ public:
    */
   DummyConstraint(
     const fuse_variables::DummyVariable& variable,
-    const fuse_core::Vector2d& mean,
-    const fuse_core::Matrix2d& covariance);
+    const fuse_core::VectorXd& mean,
+    const fuse_core::MatrixXd& covariance);
 
   /**
    * @brief Destructor
@@ -94,7 +97,7 @@ public:
    * defined by the variable, not the order defined by the \p indices parameter. All unmeasured variable dimensions
    * are set to zero.
    */
-  const fuse_core::Vector2d& mean() const { return mean_; }
+  const fuse_core::VectorXd& mean() const { return mean_; }
 
   /**
    * @brief Read-only access to the square root information matrix.
@@ -103,7 +106,7 @@ public:
    * square root information matrix will have size measured_dimensions X variable_dimensions. If only a partial set
    * of dimensions are measured, then this matrix will not be square.
    */
-  const fuse_core::Matrix2d& sqrtInformation() const { return sqrt_information_; }
+  const fuse_core::MatrixXd& sqrtInformation() const { return sqrt_information_; }
 
   /**
    * @brief Compute the measurement covariance matrix.
@@ -113,7 +116,7 @@ public:
    * subset of dimensions are measured, then some rows/columns will be zero. This will result in a rank-deficient
    * covariance matrix. You have been warned.
    */
-  fuse_core::Matrix2d covariance() const;
+  fuse_core::MatrixXd covariance() const;
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -137,31 +140,32 @@ public:
    * @brief Serialize the Dummy Variable members
    */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive(cereal::make_nvp("base", cereal::base_class<fuse_core::Constraint>(this)),
-            CEREAL_NVP(mean_),
-            CEREAL_NVP(sqrt_information_));
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & mean_;
+    archive & sqrt_information_;
   }
 
-  void serializeConstraint(cereal::JSONOutputArchive& archive) const override
+  void serializeConstraint(boost::archive::text_oarchive& archive) const override
   {
-    archive(cereal::make_nvp("constraint", *this));
+    archive << *this;
   }
 
-  void deserializeConstraint(cereal::JSONInputArchive& archive) override
+  void deserializeConstraint(boost::archive::text_iarchive& archive) override
   {
-    archive(cereal::make_nvp("constraint", *this));
+    archive >> *this;
   }
 
 protected:
-  fuse_core::Vector2d mean_;  //!< The measured/prior mean vector for this variable
-  fuse_core::Matrix2d sqrt_information_;  //!< The square root information matrix
+  fuse_core::VectorXd mean_;  //!< The measured/prior mean vector for this variable
+  fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
 };
 
 }  // namespace fuse_constraints
 
 // Register the derived fuse Variable with Cereal.
-CEREAL_REGISTER_TYPE(fuse_constraints::DummyConstraint);
+// CEREAL_REGISTER_TYPE(fuse_constraints::DummyConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::DummyConstraint);
 
 #endif  // FUSE_CONSTRAINTS_DUMMY_CONSTRAINT_H

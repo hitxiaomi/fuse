@@ -45,8 +45,11 @@
 #include <boost/tuple/tuple.hpp>
 #include <ceres/cost_function.h>
 
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+
+// #include <cereal/types/base_class.hpp>
+// #include <cereal/types/polymorphic.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -143,27 +146,26 @@ public:
   ceres::CostFunction* costFunction() const override;
 
   /**
-   * @brief Serialize the members
+   * @brief Serialize the Dummy Variable members
    */
   template<class Archive>
-  void serialize(Archive& archive)
+  void serialize(Archive& archive, const unsigned int version)
   {
-    archive(cereal::make_nvp("base", cereal::base_class<fuse_core::Constraint>(this)),
-            CEREAL_NVP(A_),
-            CEREAL_NVP(b_));
-    // FIXME add:
-    // local_parameterizations_
-    // x_bar_
+    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive & A_;
+    archive & b_;
+    // archive & local_parameterizations_;  // TODO(swilliams) Add serialization for LocalParameters
+    archive & x_bar_;
   }
 
-  void serializeConstraint(cereal::JSONOutputArchive& archive) const override
+  void serializeConstraint(boost::archive::text_oarchive& archive) const override
   {
-    archive(cereal::make_nvp("constraint", *this));
+    archive << *this;
   }
 
-  void deserializeConstraint(cereal::JSONInputArchive& archive) override
+  void deserializeConstraint(boost::archive::text_iarchive& archive) override
   {
-    archive(cereal::make_nvp("constraint", *this));
+    archive >> *this;
   }
 protected:
   std::vector<fuse_core::MatrixXd> A_;  //!< The A matrices of the marginal constraint
@@ -235,6 +237,7 @@ MarginalConstraint::MarginalConstraint(
 }  // namespace fuse_constraints
 
 // Register the derived fuse MarginalConstraint with Cereal.
-CEREAL_REGISTER_TYPE(fuse_constraints::MarginalConstraint);
+// CEREAL_REGISTER_TYPE(fuse_constraints::MarginalConstraint);
+BOOST_CLASS_EXPORT_KEY(fuse_constraints::MarginalConstraint);
 
 #endif  // FUSE_CONSTRAINTS_MARGINAL_CONSTRAINT_H

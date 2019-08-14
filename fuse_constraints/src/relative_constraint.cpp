@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2019, Locus Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,27 +31,21 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_core/variable.h>
+#include <fuse_constraints/relative_constraint.h>
+
+#include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
 
-#include <ostream>
 
+// Register this variable with ROS as a plugin. This allows the pluginlib class loader to be used to deserialize
+// variables in a generic manner in other classes.
+// PLUGINLIB_EXPORT_CLASS(fuse_constraints::DummyConstraint, fuse_core::Constraint);
 
-namespace fuse_core
-{
-
-Variable::Variable(const UUID& uuid) :
-  uuid_(uuid)
-{
-}
-
-std::ostream& operator <<(std::ostream& stream, const Variable& variable)
-{
-  variable.print(stream);
-  return stream;
-}
-
-}  // namespace fuse_core
-
-BOOST_CLASS_EXPORT_IMPLEMENT(fuse_core::Variable);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeAccelerationAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeAccelerationLinear2DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeOrientation2DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePosition2DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativePosition3DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeVelocityAngular2DStampedConstraint);
+BOOST_CLASS_EXPORT_IMPLEMENT(fuse_constraints::RelativeVelocityLinear2DStampedConstraint);

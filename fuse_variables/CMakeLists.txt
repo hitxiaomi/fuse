@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.1.3)
 project(fuse_variables)
 
 set(build_depends
@@ -27,7 +27,7 @@ catkin_package(
 ## Build ##
 ###########
 
-add_compile_options(-std=c++14 -Wall -Werror)
+add_compile_options(-Wall -Werror)
 
 ## fuse_variables library
 add_library(${PROJECT_NAME}
@@ -44,6 +44,17 @@ add_library(${PROJECT_NAME}
   src/velocity_angular_3d_stamped.cpp
   src/velocity_linear_2d_stamped.cpp
   src/velocity_linear_3d_stamped.cpp
+)
+target_compile_features(${PROJECT_NAME}
+  PUBLIC
+    cxx_constexpr
+    cxx_defaulted_functions
+    cxx_override
+    cxx_right_angle_brackets
+    cxx_variable_templates
+  PRIVATE
+    cxx_auto_type
+    cxx_range_for
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}

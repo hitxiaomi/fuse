@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.1.3)
 project(fuse_constraints)
 
 set(build_depends
@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
-set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(SuiteSparse REQUIRED COMPONENTS CCOLAMD)
@@ -37,7 +36,7 @@ catkin_package(
 ## Build ##
 ###########
 
-add_compile_options(-std=c++14 -Wall -Werror)
+add_compile_options(-Wall -Werror)
 
 # fuse_constraints library
 add_library(${PROJECT_NAME}
@@ -59,7 +58,18 @@ add_library(${PROJECT_NAME}
   src/uuid_ordering.cpp
   src/variable_constraints.cpp
 )
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_generic_lambdas)
+target_compile_features(${PROJECT_NAME}
+  PUBLIC
+    cxx_auto_type
+    cxx_defaulted_functions
+    cxx_generic_lambdas
+    cxx_lambdas
+    cxx_override
+    cxx_right_angle_brackets
+  PRIVATE
+    cxx_range_for
+    cxx_trailing_return_types
+)
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
 )

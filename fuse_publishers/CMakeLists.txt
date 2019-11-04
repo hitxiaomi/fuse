@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.1.3)
 project(fuse_publishers)
 
 set(build_depends
@@ -30,13 +30,27 @@ catkin_package(
 ## Build ##
 ###########
 
-add_compile_options(-std=c++14 -Wall -Werror)
+add_compile_options(-Wall -Werror)
 
 # fuse_publishers library
 add_library(${PROJECT_NAME}
   src/path_2d_publisher.cpp
   src/pose_2d_publisher.cpp
   src/serialized_publisher.cpp
+)
+target_compile_features(${PROJECT_NAME}
+  PUBLIC
+    cxx_auto_type
+    cxx_constexpr
+    cxx_defaulted_functions
+    cxx_override
+    cxx_range_for
+    cxx_right_angle_brackets
+    cxx_static_assert
+    cxx_variable_templates
+    cxx_variadic_templates
+  PRIVATE
+    cxx_lambdas
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}

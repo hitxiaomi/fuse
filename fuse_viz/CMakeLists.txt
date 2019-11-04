@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.1.3)
 project(fuse_viz)
 
 set(build_depends
@@ -20,7 +20,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 ## Build ##
 ###########
 
-add_compile_options(-std=c++14 -Wall -Werror)
+add_compile_options(-Wall -Werror)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -42,6 +42,13 @@ set(source_files
 
 add_library(${PROJECT_NAME}
   ${source_files}
+)
+target_compile_features(${PROJECT_NAME}
+  PUBLIC
+    cxx_override
+  PRIVATE
+    cxx_auto_type
+    cxx_range_for
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}

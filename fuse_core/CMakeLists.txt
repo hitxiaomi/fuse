@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.1.3)
 project(fuse_core)
 
 set(build_depends
@@ -10,7 +10,6 @@ set(build_depends
 find_package(catkin REQUIRED COMPONENTS
   ${build_depends}
 )
-set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -32,7 +31,7 @@ catkin_package(
 ## Build ##
 ###########
 
-add_compile_options(-std=c++14 -Wall -Werror)
+add_compile_options(-Wall -Werror)
 
 ## fuse_core library
 add_library(${PROJECT_NAME}
@@ -50,7 +49,23 @@ add_library(${PROJECT_NAME}
   src/uuid.cpp
   src/variable.cpp
 )
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_generic_lambdas)
+target_compile_features(${PROJECT_NAME}
+  PUBLIC
+    cxx_auto_type
+    cxx_constexpr
+    cxx_defaulted_functions
+    cxx_nullptr
+    cxx_override
+    cxx_right_angle_brackets
+    cxx_trailing_return_types
+    cxx_uniform_initialization
+    cxx_variadic_macros
+  PRIVATE
+    cxx_generic_lambdas
+    cxx_lambda_init_captures
+    cxx_lambdas
+    cxx_range_for
+)
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
 )
@@ -71,6 +86,10 @@ target_link_libraries(${PROJECT_NAME}
 # fuse_echo executable
 add_executable(fuse_echo
   src/fuse_echo.cpp
+)
+target_compile_features(fuse_echo
+  PRIVATE
+    cxx_auto_type
 )
 add_dependencies(fuse_echo
   ${catkin_EXPORTED_TARGETS}

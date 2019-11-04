@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.1.3)
 project(fuse_graphs)
 
 set(build_depends
@@ -29,11 +29,23 @@ catkin_package(
 ## Build ##
 ###########
 
-add_compile_options(-std=c++14 -Wall -Werror)
+add_compile_options(-Wall -Werror)
 
 ## fuse_graphs library
 add_library(${PROJECT_NAME}
   src/hash_graph.cpp
+)
+target_compile_features(${PROJECT_NAME}
+  PUBLIC
+    cxx_defaulted_functions
+    cxx_noexcept
+    cxx_override
+    cxx_right_angle_brackets
+  PRIVATE
+    cxx_auto_type
+    cxx_lambdas
+    cxx_range_for
+    cxx_trailing_return_types
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}

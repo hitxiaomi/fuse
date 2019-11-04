@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.1.3)
 project(fuse_optimizers)
 
 set(build_depends
@@ -28,7 +28,7 @@ catkin_package(
 ## Build ##
 ###########
 
-add_compile_options(-std=c++14 -Wall -Werror)
+add_compile_options(-Wall -Werror)
 
 ## fuse_optimizers library
 add_library(${PROJECT_NAME}
@@ -36,6 +36,18 @@ add_library(${PROJECT_NAME}
   src/fixed_lag_smoother.cpp
   src/optimizer.cpp
   src/variable_stamp_index.cpp
+)
+target_compile_features(${PROJECT_NAME}
+  PUBLIC
+    cxx_auto_type
+    cxx_defaulted_functions
+    cxx_override
+    cxx_uniform_initialization
+  PRIVATE
+    cxx_generic_lambdas
+    cxx_lambdas
+    cxx_range_for
+    cxx_right_angle_brackets
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}

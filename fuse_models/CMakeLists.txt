@@ -1,10 +1,5 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.1.3)
 project(fuse_models)
-
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-endif()
-add_compile_options(-Wall -Werror)
 
 find_package(
   catkin REQUIRED
@@ -81,38 +76,48 @@ roslint_cpp()
 ## Build ##
 ###########
 
-include_directories(
-  include
-  ${Boost_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
-  ${CERES_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
-)
+add_compile_options(-Wall -Werror)
 
 ## Declare a C++ library
-add_library(
-  ${PROJECT_NAME}
-    src/acceleration_2d.cpp
-    src/imu_2d.cpp
-    src/odometry_2d.cpp
-    src/odometry_2d_publisher.cpp
-    src/pose_2d.cpp
-    src/twist_2d.cpp
-    src/unicycle_2d.cpp
-    src/unicycle_2d_ignition.cpp
-    src/unicycle_2d_state_kinematic_constraint.cpp
+add_library(${PROJECT_NAME}
+  src/acceleration_2d.cpp
+  src/imu_2d.cpp
+  src/odometry_2d.cpp
+  src/odometry_2d_publisher.cpp
+  src/pose_2d.cpp
+  src/twist_2d.cpp
+  src/unicycle_2d.cpp
+  src/unicycle_2d_ignition.cpp
+  src/unicycle_2d_state_kinematic_constraint.cpp
 )
-
-## Specify libraries to link a library or executable target against
-target_link_libraries(
-  ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
+target_compile_features(${PROJECT_NAME}
+  PUBLIC
+    cxx_auto_type
+    cxx_defaulted_functions
+    cxx_final
+    cxx_lambdas
+    cxx_override
+    cxx_right_angle_brackets
+    cxx_uniform_initialization
+  PRIVATE
+    cxx_constexpr
+    cxx_range_for
 )
-add_dependencies(
-  ${PROJECT_NAME}
-    ${${PROJECT_NAME}_EXPORTED_TARGETS}
-    ${catkin_EXPORTED_TARGETS}
+add_dependencies(${PROJECT_NAME}
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+    ${Boost_INCLUDE_DIRS}
+    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIRS}
+)
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${CERES_LIBRARIES}
 )
 
 #############
